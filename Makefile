@@ -1,0 +1,28 @@
+postgres:
+	docker run --name postgres16 -p 5435:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=pass -d postgres:16-alpine
+
+mysql:
+	docker run --name mysql8 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pass -d mysql:latest
+
+migrate:
+	migrate create -ext sql -dir db/migration -seq init_schema
+
+create_db:
+	docker exec -it postgres16 createdb --username=root --owner=root simple_bank
+
+drop_db:
+	docker exec -it postgres16 dropdb simple_bank
+
+migrate_up:
+	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose up
+
+migrate_down:
+	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose down
+
+sqlc:
+	sqlc generate
+
+test:
+	go test -v -cover ./...
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc
