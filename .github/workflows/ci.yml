@@ -24,3 +24,19 @@ jobs:
 
       - name: Test
         run: make test
+
+      - name: Run migrations
+        run: migrate_up
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: simple_bank
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
