@@ -28,4 +28,7 @@ test:
 server:
 	go run main.go
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server
+mock:
+	mockgen -package mockdb -destination db/mock/store.go simple-bank/db/sqlc Store
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock
