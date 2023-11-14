@@ -25,4 +25,7 @@ sqlc:
 test:
 	go test -v -cover ./...
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc
+server:
+	go run main.go
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server
