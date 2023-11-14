@@ -9,12 +9,6 @@ import (
 	"simple-bank/util"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
 	config, err := util.LoadConfig(".")
 	if err != nil {
