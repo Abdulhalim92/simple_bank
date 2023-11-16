@@ -31,4 +31,13 @@ server:
 mock:
 	mockgen -package mockdb -destination db/mock/store.go simple-bank/db/sqlc Store
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock
+migrate_create:
+	migrate create -ext sql -dir db/migration -seq add_users
+
+migrate_up1:
+	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose up 1
+
+migrate_down1:
+	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose down 1
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1
