@@ -1,5 +1,5 @@
 postgres:
-	docker run --name postgres16 -p 5435:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=pass -d postgres:16-alpine
+	docker run --name postgres16 --network bank-network -p 5435:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=pass -d postgres:16-alpine
 
 mysql:
 	docker run --name mysql8 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pass -d mysql:latest
