@@ -1,12 +1,12 @@
-version: '4.0'
+version: '3.8'
 services:
   postgres:
     container_name: postgres
     image: postgres:16-alpine3.18
     environment:
-      - POSTGRES_USER = root
-      - POSTGRES_PASSWORD = pass
-      - POSTGRES_DB = simple_bank
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=simple_bank
 
   api:
     container_name: simple_bank
@@ -17,3 +17,7 @@ services:
       - "8080:8080"
     environment:
       - "DB_SOURCE=postgresql://root:pass@postgres:5432/simple_bank?sslmode=disable"
+    depends_on:
+      - postgres
+    entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]
+    command: ["/app/main"]
