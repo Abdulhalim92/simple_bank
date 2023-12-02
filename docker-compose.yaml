@@ -7,7 +7,8 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=pass
       - POSTGRES_DB=simple_bank
-
+    ports:
+      - "5433:5432"
   api:
     container_name: simple_bank
     build:
