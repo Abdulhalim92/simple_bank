@@ -1,3 +1,5 @@
+DB_URL=postgresql://root:pass@localhost:5433/simple_bank?sslmode=disable
+
 postgres:
 	docker run --name postgres16 --network bank-network -p 5435:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=pass -d postgres:16-alpine
 
@@ -14,10 +16,10 @@ drop_db:
 	docker exec -it postgres16 dropdb simple_bank
 
 migrate_up:
-	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
 migrate_down:
-	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "$(DB_URL)" -verbose down
 
 sqlc:
 	sqlc generate
@@ -35,9 +37,15 @@ migrate_create:
 	migrate create -ext sql -dir db/migration -seq add_users
 
 migrate_up1:
-	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
 
 migrate_down1:
-	migrate -path db/migration -database "postgresql://root:pass@localhost:5435/simple_bank?sslmode=disable" -verbose down 1
+	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1
+db_docs:
+	dbdocs build doc/db.dbml
+
+db_schema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1 db_docs db_schema
