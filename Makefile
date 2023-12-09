@@ -48,4 +48,14 @@ db_docs:
 db_schema:
 	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1 db_docs db_schema
+proto:
+	mkdir pb
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+    --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+    proto/*.proto
+
+evans:
+	evans --host localhost --port 9090 -r repl
+
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1 db_docs db_schema proto evans
