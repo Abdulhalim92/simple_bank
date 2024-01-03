@@ -8,6 +8,7 @@ import (
 	"simple-bank/util"
 )
 
+// Server обслуживает gRPC запросы нашего банковского сервиса
 type Server struct {
 	pb.UnimplementedSimpleBankServer
 	config     util.Config
@@ -15,6 +16,7 @@ type Server struct {
 	tokenMaker token.Maker
 }
 
+// NewServer создаёт новый HTTP сервер и настраивает маршрутизацию
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
