@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
+	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -13,6 +14,7 @@ import (
 	"net/http"
 	"simple-bank/api"
 	db "simple-bank/db/sqlc"
+	_ "simple-bank/doc/statik" // импортировать, чтобы сработал функция init()
 	"simple-bank/gapi"
 	"simple-bank/pb"
 	"simple-bank/util"
@@ -103,9 +105,22 @@ func runGatewayServer(config util.Config, store db.Store) {
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcMux)
 
-	// получение данных с каталога и обработка
-	fs := http.FileServer(http.Dir("./doc/swagger"))
-	mux.Handle("/swagger/", http.StripPrefix("/swagger/", fs))
+	// загрузка данных из пространства имено по умолчанию
+	// fs.New() загружает данные непосредственно из памяти сервера,
+	// а не с жесткого диска
+	fileSystem, err := fs.New()
+	if err != nil {
+		log.Fatal("cannot create static fs: ", err)
+	}
+	swaggerHandler := http.StripPrefix("/swagger/", http.FileServer(fileSystem))
+	mux.Handle("/swagger/", swaggerHandler)
+
+	/*
+		// получение данных с каталога и обработка
+		fs := http.FileServer(http.Dir("./doc/swagger"))
+		mux.Handle("/swagger/", http.StripPrefix("/swagger/", fs))
+
+	*/
 
 	listener, err := net.Listen("tcp", config.HTTPServerAddress)
 	if err != nil {
