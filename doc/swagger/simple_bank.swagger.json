@@ -1,8 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "rpc_create_user.proto",
-    "version": "version not set"
+    "title": "SimpleBank API",
+    "version": "1.0",
+    "contact": {
+      "name": "Tech School",
+      "url": "https://github.com/techschool",
+      "email": "techschool.guru@gmail.com"
+    }
   },
   "tags": [
     {
