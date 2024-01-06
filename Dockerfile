@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/migrate /usr/bin/migrate
 COPY app.env .
-COPY db/migration ./migration
+COPY db/migration ./db/migration
 COPY start.sh .
 COPY wait-for.sh .
 
