@@ -14,7 +14,16 @@ import (
 	"time"
 )
 
-func (s *Server) Update(c context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	authPayload, err := s.authorizeUser(ctx)
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
+	if authPayload.Username != req.GetUsername() {
+		return nil, status.Errorf(codes.PermissionDenied, "cannot update other user's info")
+	}
+
 	violations := validateUpdateUserRequest(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
@@ -49,7 +58,7 @@ func (s *Server) Update(c context.Context, req *pb.UpdateUserRequest) (*pb.Updat
 		}
 	}
 
-	user, err := s.store.UpdateUser(c, arg)
+	user, err := s.store.UpdateUser(ctx, arg)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -62,6 +71,10 @@ func (s *Server) Update(c context.Context, req *pb.UpdateUserRequest) (*pb.Updat
 	}
 
 	return rsp, nil
+}
+
+func unauthenticatedError(err error) error {
+	return status.Errorf(codes.Unauthenticated, "unauthorized: %s", err)
 }
 
 func validateUpdateUserRequest(req *pb.UpdateUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {

@@ -14,7 +14,7 @@ var (
 func ValidateString(value string, minLength int, maxLength int) error {
 	n := len(value)
 
-	if n < maxLength || n > maxLength {
+	if n < minLength || n > maxLength {
 		return fmt.Errorf("must contain from %d-%d characters", minLength, maxLength)
 	}
 
