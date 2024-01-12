@@ -7,8 +7,8 @@ COPY . .
 COPY go.mod go.sum ./
 
 RUN go build -o main main.go
-RUN apk add curl
-RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+#RUN apk add curl
+#RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
 
 
 # Run stage
@@ -17,7 +17,7 @@ FROM alpine
 WORKDIR /app
 
 COPY --from=builder /app/main .
-COPY --from=builder /app/migrate /usr/bin/migrate
+#COPY --from=builder /app/migrate /usr/bin/migrate
 COPY app.env .
 COPY db/migration ./db/migration
 COPY start.sh .
