@@ -43,6 +43,7 @@ func (s *Server) CreateUser(c context.Context, req *pb.CreateUserRequest) (*pb.C
 		return nil, status.Errorf(codes.Internal, "failed to create user: %s", err)
 	}
 
+	// Отправляем пользователю письмо для подтверждения адреса электронной почты
 	rsp := &pb.CreateUserResponse{
 		User: convertUser(user),
 	}
