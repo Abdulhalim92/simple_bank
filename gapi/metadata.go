@@ -2,9 +2,9 @@ package gapi
 
 import (
 	"context"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
-	"log"
 )
 
 const (
