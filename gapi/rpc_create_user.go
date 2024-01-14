@@ -3,6 +3,7 @@ package gapi
 import (
 	"context"
 	"errors"
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -11,9 +12,11 @@ import (
 	"simple-bank/pb"
 	"simple-bank/util"
 	"simple-bank/val"
+	"simple-bank/worker"
+	"time"
 )
 
-func (s *Server) CreateUser(c context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
+func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	violations := validateCreateUserRequest(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
@@ -31,7 +34,7 @@ func (s *Server) CreateUser(c context.Context, req *pb.CreateUserRequest) (*pb.C
 		Email:          req.GetEmail(),
 	}
 
-	user, err := s.store.CreateUser(c, arg)
+	user, err := s.store.CreateUser(ctx, arg)
 	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) {
@@ -44,6 +47,21 @@ func (s *Server) CreateUser(c context.Context, req *pb.CreateUserRequest) (*pb.C
 	}
 
 	// Отправляем пользователю письмо для подтверждения адреса электронной почты
+	// TODO: используйте транзакцию БД
+	taskPayload := &worker.PayloadSendVerifyEmail{
+		Username: user.Username,
+	}
+	opts := []asynq.Option{
+		asynq.MaxRetry(10),
+		asynq.ProcessIn(10 * time.Second),
+		asynq.Queue(worker.QueueCritical),
+	}
+
+	err = s.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to distribute task to send verify email: %s", err)
+	}
+
 	rsp := &pb.CreateUserResponse{
 		User: convertUser(user),
 	}
