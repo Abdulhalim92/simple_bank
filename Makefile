@@ -18,8 +18,17 @@ drop_db:
 migrate_up:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
+migrate_up1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
+
 migrate_down:
 	migrate -path db/migration -database "$(DB_URL)" -verbose down
+
+migrate_down1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
+
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
 
 sqlc:
 	sqlc generate
@@ -35,12 +44,6 @@ mock:
 
 migrate_create:
 	migrate create -ext sql -dir db/migration -seq add_users
-
-migrate_up1:
-	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
-
-migrate_down1:
-	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
 
 db_docs:
 	dbdocs build doc/db.dbml
@@ -64,4 +67,4 @@ evans:
 redis:
 	docker run --name redis -p 6379:6379 -d redis:7-alpine
 
-.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_down sqlc server mock migrate_create migrate_up1 migrate_down1 db_docs db_schema proto evans redis
+.PHONY: postgres mysql migrate create_db drop_db migrate_up migrate_up1 migrate_down migrate_down1 new_migration sqlc server mock migrate_create migrate_up1 migrate_down1 db_docs db_schema proto evans redis
