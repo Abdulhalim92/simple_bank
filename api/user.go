@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -102,7 +101,7 @@ func (s *Server) loginUser(c *gin.Context) {
 
 	user, err := s.store.GetUser(c, req.Username)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, db.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
@@ -185,7 +184,7 @@ func (s *Server) renewAccessToken(c *gin.Context) {
 
 	session, err := s.store.GetSession(c, refreshPayload.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, db.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -60,7 +59,7 @@ func (s *Server) createTransfer(c *gin.Context) {
 func (s *Server) validAccount(c *gin.Context, accountID int64, currency string) (db.Account, bool) {
 	account, err := s.store.GetAccount(c, accountID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, db.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return account, false
 		}
