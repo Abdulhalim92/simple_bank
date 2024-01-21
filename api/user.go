@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"net/http"
 	db "simple-bank/db/sqlc"
 	"simple-bank/util"
@@ -60,13 +59,8 @@ func (s *Server) createUser(c *gin.Context) {
 
 	user, err := s.store.CreateUser(c, arg)
 	if err != nil {
-		var pqErr *pq.Error
-		if errors.As(err, &pqErr) {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
-				return
-			}
+		if db.ErrorCode(err) == db.UniqueViolation {
+			c.JSON(http.StatusForbidden, errorResponse(err))
 		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
